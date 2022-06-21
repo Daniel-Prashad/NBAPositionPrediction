@@ -13,5 +13,5 @@ This program uses NBA player statistics and K-Nearest Neighbours classification 
 4. To start the program, run the following command:
    * python main.py
 
-# Additional Notes
+# Additional Note
 You can alter the training algorithm by modifying the lists of players in config.py, then delete data.pickle and rerun the program to update the model.

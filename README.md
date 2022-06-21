@@ -14,4 +14,4 @@ This program uses NBA player statistics and K-Nearest Neighbours classification 
    * python main.py
 
 # Additional Note
-You can alter the training algorithm by modifying the lists of players in config.py, then delete data.pickle and rerun the program to update the model.
+You can alter the training algorithm by modifying the lists of players in config.py, then delete data.pickle and re-run the program to update the model.

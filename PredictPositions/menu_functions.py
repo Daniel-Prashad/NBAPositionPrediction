@@ -15,7 +15,7 @@ def main_menu():
 
     # display the menu
     os.system('cls')
-    print("\nWelcome to Predicting NBA Positions!")
+    print("Welcome to Predicting NBA Positions!")
     print("[1] - Explanation of the model")
     print("[2] - View the results of a preselected test set of 60 players")
     print("[3] - Provide a player's name to predict their position")

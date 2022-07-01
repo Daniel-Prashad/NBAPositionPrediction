@@ -3,6 +3,7 @@ from PredictPositions.plot_helper_functions import visualize, visualize_sample
 from PredictPositions.prediction_helper_functions import predict_position, predict_position_from_stats
 
 import numpy as np
+import os
 
 
 def main_menu():
@@ -13,6 +14,7 @@ def main_menu():
     options = ['1', '2', '3', '4', '0']
 
     # display the menu
+    os.system('cls')
     print("\nWelcome to Predicting NBA Positions!")
     print("[1] - Explanation of the model")
     print("[2] - View the results of a preselected test set of 60 players")
@@ -34,6 +36,7 @@ def model_explanation(training_career_avgs, training_players, training_positions
     '''(Numpy Array, List of Strings, List of Strings, Numpy Array, int) -> Nonetype
     This function provides the user with an explanation of the model, visualizes the training data, provides inferences, etc.
     '''
+    #os.system('cls')
     print("MODEL EXPLANATION")
     print("In order to predict a player's position, this model uses the K-Nearest Neighbours algorithm.")
     print("We start with a list of 200 NBA players, with a 70/30 split; that is 140 players in the training set and 60 players in the test set.")
@@ -98,6 +101,7 @@ def test_model(testing_players, clf, clf_3_pos, encoder):
     # display the number of correct predicitions and accuracy for each model
     print(f"5-Pos -> Number of Correct Predictions: {correct_preds}/{len(testing_players)} | Accuracy: {round(correct_preds/len(testing_players), 2) * 100}%")
     print(f"3-Pos -> Number of Correct Predictions: {correct_3_preds}/{len(testing_players)} | Accuracy: {round(correct_3_preds/len(testing_players), 2) * 100}%")
+    input("Press enter to return to the main menu")
 
 
 def predict_pos_user_name(training_career_avgs, training_players, training_positions, y_train_3_pos, clf, clf_3_pos, encoder):
@@ -161,3 +165,4 @@ def predict_pos_user_stats(clf, clf_3_pos, encoder):
     pred_pos, pred_3_pos = predict_position_from_stats(career_avgs, clf, clf_3_pos, encoder)
     print(f"\n5-Position Prediction: {pred_pos}")
     print(f"3-Position Prediction: {three_pos_dict[pred_3_pos][0]}")
+    input("Press enter to return to the main menu")

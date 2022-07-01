@@ -7,6 +7,7 @@ from sklearn.neighbors import KNeighborsClassifier
 
 import numpy as np
 import pickle
+import os
 
 
 def create_training_data():
@@ -52,6 +53,7 @@ if __name__ == '__main__':
     # continue to display the menu, prompt the user for a selection from the menu and continue with that selection until the user quits the program
     while True:
         inp = main_menu()
+        os.system('cls')
         if inp == '1':
             model_explanation(training_career_avgs, training_players, training_positions, y_train_3_pos, len(point_guards))
         
@@ -65,5 +67,4 @@ if __name__ == '__main__':
             predict_pos_user_stats(clf, clf_3_pos, encoder)
 
         elif inp == '0':
-            print("Goodbye\n")
             break

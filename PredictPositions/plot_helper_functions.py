@@ -1,4 +1,4 @@
-from PredictPositions.config import three_pos_dict, colours_five, colours_three
+from PredictPositions.config import colours_five
 
 from matplotlib.lines import Line2D
 
@@ -37,7 +37,7 @@ def get_legend_elements(colour_dict):
     '''
     legend_elements= []
     for pos in colour_dict:
-        label_pos = pos if len(colour_dict) == 5 else three_pos_dict[pos][0]
+        label_pos = pos
         legend_elements.append(Line2D([0], [0], marker='o', color='white', markerfacecolor=colour_dict[pos], label=label_pos))
     return legend_elements
 
@@ -58,45 +58,39 @@ def get_pos_avgs(training_career_avgs, size_per_pos):
     return pos_avgs
 
 
-def visualize(training_career_avgs, training_players, training_positions, y_train_3_pos, player_stats=None, player_name=""):
-    '''(Numpy Array, List of Strings, List of Strings, Numpy Array, Optional Numpy Array, Optional String) -> Nonetype
-    This function visualizes the training data of both models using scatterplots and the data point of a requested player.
+def visualize(training_career_avgs, training_players, training_positions, player_stats=None, player_name=""):
+    '''(Numpy Array, List of Strings, List of Strings, Optional Numpy Array, Optional String) -> Nonetype
+    This function visualizes the training data of the model using a scatterplot and the data point of a requested player.
     '''
     # get the coordinates for each data point
     plot = get_coordinates(training_career_avgs)
 
-    # create a dataframe to store the data needed for the scatterplots
-    df = create_dataframe(plot, ['player', 'position_five', 'position_three'], [training_players, training_positions, y_train_3_pos])
+    # create a dataframe to store the data needed for the scatterplot
+    df = create_dataframe(plot, ['player', 'position'], [training_players, training_positions])
 
-    # define the scatterplots
-    fig, (ax1, ax2) = plt.subplots(2)
+    # define the scatterplot
+    fig, ax = plt.subplots()
     
-    # create the title and x- and y-labels for each graph
+    # create the title and x- and y-labels for the graph
     fig.suptitle("NBA Positions Visualized") 
-    ax1.set(xlabel='Scoring Stats', ylabel='Non-Scoring Stats')
-    ax2.set(xlabel='Scoring Stats', ylabel='Non-Scoring Stats')
+    ax.set(xlabel='Scoring Stats', ylabel='Non-Scoring Stats')
 
-    # plot each point, using the appropriate colour for each graph
-    ax1.scatter(df['scoring_stats'], df['non_scoring_stats'], c=df['position_five'].map(colours_five))
-    ax2.scatter(df['scoring_stats'], df['non_scoring_stats'], c=df['position_three'].map(colours_three))
+    # plot each point, using the appropriate colour for each point
+    ax.scatter(df['scoring_stats'], df['non_scoring_stats'], c=df['position'].map(colours_five))
 
     # add data point for additional player if requested
     if player_stats is not None:
         plyr_scoring_stats = player_stats[0]+player_stats[4]+player_stats[6]
         plyr_non_scoring_stats = player_stats[1]+player_stats[2]+player_stats[3]+player_stats[5]
-        for ax in (ax1, ax2):
-            ax.scatter(plyr_scoring_stats, plyr_non_scoring_stats, s=125, c="black", marker='s')
-            ax.annotate(player_name, ((plyr_scoring_stats+0.20, plyr_non_scoring_stats+0.20)))
+        ax.scatter(plyr_scoring_stats, plyr_non_scoring_stats, s=125, c="black", marker='s')
+        ax.annotate(player_name, ((plyr_scoring_stats+0.20, plyr_non_scoring_stats+0.20)))
 
     # set the size of the plot
     plt.gcf().set_size_inches((14,10))
 
-    # create the legend for each graph
+    # create the legend for the graph
     legend_elements_five = get_legend_elements(colours_five)
-    ax1.legend(handles=legend_elements_five, bbox_to_anchor=(1.0, 1.02), loc='upper left')
-
-    legend_elements_three = get_legend_elements(colours_three)
-    ax2.legend(handles=legend_elements_three, bbox_to_anchor=(1.0, 1.02), loc='upper left')
+    ax.legend(handles=legend_elements_five, bbox_to_anchor=(1.0, 1.02), loc='upper left')
 
     # display the graphs
     plt.show()
@@ -131,7 +125,7 @@ def visualize_sample(training_career_avgs, training_players, training_positions,
     pos_plot = get_coordinates(pos_avgs)
 
     # create a dataframe to store the data needed for the scatterplot
-    pos_df = create_dataframe(pos_plot, ['player', 'position'], [['AVERAGE PG', 'AVERAGE SG', 'AVERAGE SF', 'AVERAGE PF', 'AVERAGE C'], ['PG', 'SG', 'SF', 'PF', 'C']])
+    pos_df = create_dataframe(pos_plot, ['player', 'position'], [['AVERAGE G', 'AVERAGE G/F', 'AVERAGE F', 'AVERAGE F/C', 'AVERAGE C'], ['GUARD', 'GUARD/FORWARD', 'FORWARD', 'FORWARD/CENTER', 'CENTER']])
 
     # plot each point, using the appropriate colour
     ax.scatter(pos_df['scoring_stats'], pos_df['non_scoring_stats'], s=1000, c=pos_df['position'].map(colours_five), marker='*', edgecolors='black')

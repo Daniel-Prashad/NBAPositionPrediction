@@ -1,5 +1,6 @@
-from PredictPositions.plot_helper_functions import visualize, visualize_sample
+from PredictPositions.plot_helper_functions import visualize, visualize_sample, elbow_plot
 from PredictPositions.prediction_helper_functions import predict_position, predict_position_from_stats, get_prediction_results
+from sklearn.neighbors import KNeighborsClassifier
 
 import numpy as np
 import os
@@ -10,15 +11,16 @@ def main_menu():
     This function displays the menu options to the user, prompts for and returns the user's selection of one of these options.
     '''
     # define the list of options
-    options = ['1', '2', '3', '4', '0']
+    options = ['1', '2', '3', '4', '5', '0']
 
     # display the menu
     os.system('cls')
     print("Welcome to Predicting NBA Positions!")
     print("[1] - Explanation of the model")
-    print("[2] - View the results of a preselected test set of 60 players")
-    print("[3] - Provide a player's name to predict their position")
-    print("[4] - Provide statistics to predict a player's position")
+    print("[2] - View the elbow plot of Error Rates vs Number of Neighbours used to determine the optimal k-value")
+    print("[3] - View the results of a preselected test set of 60 players")
+    print("[4] - Provide a player's name to predict their position")
+    print("[5] - Provide statistics to predict a player's position")
     print("[0] - Exit program")
 
     # prompt for, store and return the user's selection, ensuring that the input is valid
@@ -35,7 +37,6 @@ def model_explanation(training_career_avgs, training_players, training_positions
     '''(Numpy Array, List of Strings, List of Strings, Numpy Array, int) -> Nonetype
     This function provides the user with an explanation of the model, visualizes the training data, provides inferences, etc.
     '''
-    #os.system('cls')
     print("MODEL EXPLANATION")
     print("In order to predict a player's position, this model uses the K-Nearest Neighbours algorithm.")
     print("We start with a list of 200 NBA players, with a 70/30 split; that is 140 players in the training set and 60 players in the test set.")
@@ -47,8 +48,9 @@ def model_explanation(training_career_avgs, training_players, training_positions
     print("This completes training the model.\n")
 
     print("Now, in predicting the position of a player we calculate their career averages and plot the point as we did above.")
-    print("Next, we look at the five closest points (nearest neighbours) to the one just plotted.")
-    print("This point (and its corresponding player) is classified identically to the majority of those five nearest neighbours.")
+    print("Next, we look at the six closest points (nearest neighbours) to the one just plotted.")
+    print("This point (and its corresponding player) is classified identically to the majority of those six nearest neighbours.")
+    print("To see why we chose to look at the six nearest neighbours, select option [2] from the main menu. ")
   
     print("Please take a look at the generated graph.\n")
     print("Here we see that points labelled guard, forward or center generally reside within their own region.")
@@ -66,9 +68,36 @@ def model_explanation(training_career_avgs, training_players, training_positions
     visualize_sample(training_career_avgs, training_players, training_positions, size_per_pos)
 
 
-def test_model(testing_players, clf, encoder):
-    '''(List of Strings, KNN Classifier, LabelEncoder) -> Nonetype
+def find_optimal_k(training_career_avgs, training_pos_encoded, testing_players, testing_career_avgs, testing_positions, encoder):
+    '''(Numpy Array, Numpy Array, List of Strings, Numpy Array, Numpy Array, LabelEncoder) -> Nonetype
+    This function evaluates our model for values of k between 1 and 30 and produces an elbow plot of the error rates vs k-value
+    to determine the optimal value of k.
+    '''
+    # define the lists to store the error rates
+    exact_error_rates  = []
+    adjusted_error_rates = []
+    
+    # for k = 1, ... , 30 define, fit and evaluate the model, storing the error rates for each
+    for i in range (1, 31):
+        clf = KNeighborsClassifier(n_neighbors=i)
+        clf.fit(training_career_avgs, training_pos_encoded)
+        exact_score, adjusted_score = test_model(testing_players, testing_career_avgs, testing_positions, clf, encoder)
+        exact_error_rates.append(round(1-exact_score, 2))
+        adjusted_error_rates.append(round(1-adjusted_score, 2))
+        print(f"Number of Neighbours: {i} | Exact Score: {exact_score} | Adjusted Score: {adjusted_score}")
+    
+    # using the calculated error rates, output the elbow plot of error rates vs k-values
+    input("\nPress [Enter] to view the elbow plot showing the Error Rates vs Number of Neighbours: ")
+    print("\nFrom the elbow plot, we see that the optimal value for k is 6 because k=6 is at the \'elbow\' of the graph.")
+    print("This means that k=6 is the minimal number of neighbours to consider in our classification that will maximize accuracy without the risk of over-fitting.")
+    print("\nPlease close the graph to return to the main menu.")
+    elbow_plot(exact_error_rates, adjusted_error_rates)
+
+
+def test_model(testing_players, testing_career_avgs, testing_positions, clf, encoder, show_results = False):
+    '''(List of Strings, Numpy Array, Numpy Array, KNN Classifier, LabelEncoder, Boolean) -> float, float
     This function is used to test the trained model, built from a preselected set of 60 players.
+    It returns the exact and adjusted scores of the evaluated model.
     '''
     # create variable to store the number of correct predictions
     correct_preds = 0
@@ -76,20 +105,26 @@ def test_model(testing_players, clf, encoder):
 
     # predict the position for each of the 60 players in the test set
     # dislay the results and increment the number of each model if it correctly predicted the current player
-    for player in testing_players:
-        pred_pos, act_pos, _ = predict_position(player, clf, encoder)
+    for i in range(len(testing_players)):
+        career_avgs = testing_career_avgs[i].reshape(1,-1)
+        pred_pos = predict_position_from_stats(career_avgs, clf, encoder)
+        act_pos = testing_positions[i]
         match_type = get_prediction_results(pred_pos, act_pos)
         if match_type == "Exact Match":
             correct_preds += 1
         elif match_type == "Partial Match":
             partial_preds += 0.5
-        print(f"Name: {player} | Predicted Position: {pred_pos} | Actual Position: {act_pos} | Match Type: {match_type}\n")
-
+        if show_results:
+            print(f"Name: {testing_players[i]} | Predicted Position: {pred_pos} | Actual Position: {act_pos} | Match Type: {match_type}\n")
 
     # display the number of correct predicitions and accuracy for exact and exact + partial matches
-    print(f"Number of Exact Correct Predictions: {correct_preds}/{len(testing_players)} | Accuracy: {round(correct_preds/len(testing_players), 2) * 100}%")
-    print(f"Number of Adjusted Correct Predictions: {correct_preds + partial_preds}/{len(testing_players)} | Accuracy: {round((correct_preds+partial_preds)/len(testing_players), 2) * 100}%\n")
-    input("Press [Enter] to return to the main menu: ")
+    exact_score = round(correct_preds/len(testing_players), 2)
+    adjusted_score = round((correct_preds+partial_preds)/len(testing_players), 2)
+    if show_results:
+        print(f"Number of Exact Correct Predictions: {correct_preds}/{len(testing_players)} | Accuracy: {exact_score * 100}%")
+        print(f"Number of Adjusted Correct Predictions: {correct_preds + partial_preds}/{len(testing_players)} | Accuracy: {adjusted_score * 100}%\n")
+        input("Press [Enter] to return to the main menu: ")
+    return(exact_score, adjusted_score)
 
 
 def predict_pos_user_name(training_career_avgs, training_players, training_positions, clf, encoder):

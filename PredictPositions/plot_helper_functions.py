@@ -153,3 +153,25 @@ def visualize_sample(training_career_avgs, training_players, training_positions,
     # display the graph
     plt.show()
     
+
+def elbow_plot(exact_error_rates, adjusted_error_rates):
+    '''(List of floats, List of floats) -> Nonetype
+    This function outputs an elbow plot of the error rates from the evaluated models vs the corresponding k-values used.
+    '''
+    # plot the exact error rates as red and adjusted error rates as blue
+    plt.figure()
+    plt.plot(range(1,31), exact_error_rates, color='black', linestyle='dashed', marker='o', markerfacecolor='red', markersize=8)
+    plt.plot(range(1,31), adjusted_error_rates, color='black', linestyle='dashed', marker='o', markerfacecolor='blue', markersize=8)
+    
+    # create the title and x- and y-labels for the graph
+    plt.title("Error Rate vs Number of Neighbours")
+    plt.xlabel("Number of Neighbours")
+    plt.ylabel("Error Rate")
+
+    # create the legend for the graph
+    legend_elements = [Line2D([0], [0], marker='o', color='white', markerfacecolor='red', label="Exact Error Rates"),
+                       Line2D([0], [0], marker='o', color='white', markerfacecolor='blue', label="Adjusted Error Rates")]
+    plt.legend(handles=legend_elements)
+
+    # display the graph
+    plt.show()

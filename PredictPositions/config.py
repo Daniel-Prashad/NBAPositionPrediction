@@ -1,3 +1,6 @@
+# define the optimal value of k for our model, found via results from elbow plot
+OPTIMAL_K = 6
+
 # define the list of players for each position to be used in the training and test sets
 point_guards = ['steve nash', 'jason kidd', 'chris paul', 'tony parker', 'russell westbrook', 'luka doncic', 'trae young', 'ja morant', 'darius garland', 'lonzo ball',
                 'damian lillard', 'derrick rose', 'jamal murray', 'kyrie irving', 'cameron payne', 'malcolm brogdon', 'fred vanvleet', 'dennis schroder', 'kemba walker', 'baron davis',
@@ -27,7 +30,5 @@ testing_players = ['rajon rondo', 'john wall', 'alex caruso', 'chauncey billups'
                    'paul millsap', 'taj gibson', 'grant williams', 'patrick patterson', 'karl malone', 'chris webber', 'thaddeus young', 'lamarcus aldridge', 'kyle kuzma', 'carlos boozer', 'andrea bargnani', 'amir johnson',
                    'moses malone', 'al jefferson', 'steven adams', 'brook lopez', 'yao ming', 'tyson chandler', 'rudy gobert', 'joel embiid', 'hakeem olajuwon', 'joakim noah', 'hassan whiteside', 'javale mcgee']
 
-# define dictionaries to be used for mapping labels to their string representations as well as those mapping to colours to be used in scatterplots
-#three_pos_dict = {0: ['GUARD', ['PG', 'SG']], 1: ['FORWARD', ['SF', 'PF']], 2: ['CENTER', ['C']]}
+# define the dictionary to be used for mapping labels to their respective colours to be used in scatterplots
 colours_five = {'GUARD': 'purple', 'GUARD/FORWARD': 'blue', 'FORWARD': 'green', 'FORWARD/CENTER': 'orange', 'CENTER':'red'}
-#colours_three = {0: 'purple', 1: 'green', 2: 'red'}
